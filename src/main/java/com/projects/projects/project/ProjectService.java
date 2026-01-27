@@ -1,8 +1,8 @@
-package com.projects.projects.domain.project;
+package com.projects.projects.project;
 
-import com.projects.projects.domain.project.dto.CreateProjectRequest;
-import com.projects.projects.domain.tag.Tag;
-import com.projects.projects.domain.tag.TagRepository;
+import com.projects.projects.project.dto.CreateProjectRequest;
+import com.projects.projects.tag.Tag;
+import com.projects.projects.tag.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

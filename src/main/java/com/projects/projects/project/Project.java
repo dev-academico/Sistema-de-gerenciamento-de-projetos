@@ -1,9 +1,8 @@
-package com.projects.projects.domain.project;
+package com.projects.projects.project;
 
 
-import com.projects.projects.domain.tag.Tag;
+import com.projects.projects.tag.Tag;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

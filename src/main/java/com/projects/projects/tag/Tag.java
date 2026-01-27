@@ -1,4 +1,4 @@
-package com.projects.projects.domain.tag;
+package com.projects.projects.tag;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

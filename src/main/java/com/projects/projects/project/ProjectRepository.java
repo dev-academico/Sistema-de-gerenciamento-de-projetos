@@ -1,4 +1,4 @@
-package com.projects.projects.domain.project;
+package com.projects.projects.project;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
