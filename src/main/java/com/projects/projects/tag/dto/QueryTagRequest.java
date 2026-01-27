@@ -5,10 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
 public class QueryTagRequest {
-    private String name;
+    private String searchName;
 }

@@ -2,7 +2,9 @@ package com.projects.projects.tag;
 
 import com.projects.projects.tag.dto.CreateTagRequest;
 import com.projects.projects.tag.dto.DeleteTagRequest;
+import com.projects.projects.tag.dto.PatchTagRequest;
 import com.projects.projects.tag.dto.QueryTagRequest;
+import jakarta.transaction.Transactional;
 import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,10 +25,10 @@ public class TagService  {
         this.tagRepository = tagRepository;
     }
 
-    public Tag AddTag(CreateTagRequest request) {
+    public Tag addTag(CreateTagRequest request) {
 
         if (request.getName().length() > 50) {
-            throw new IllegalArgumentException("Nome pode ter no máximo 50 caracteres");
+            throw new IllegalArgumentException("Nome pode ter no máximo 50 caracteres.");
         }
 
         Tag newTag = new Tag();
@@ -35,29 +37,39 @@ public class TagService  {
         return tagRepository.save(newTag);
     }
 
-    public List<Tag> ListTags() {
+    public List<Tag> listTags() {
         return tagRepository.findAll();
     }
 
-    public Page<Tag> QueryTags(QueryTagRequest queryTagRequest) {
+    public Page<Tag> queryTags(QueryTagRequest queryTagRequest) {
         PageRequest pageable = PageRequest.of(
                 0,
                 5,
                 Sort.by("name").ascending()
         );
 
-        return tagRepository.findByNamePage(queryTagRequest.getName(), pageable);
+        return tagRepository.findByNamePage(queryTagRequest.getSearchName(), pageable);
     }
 
-    public void DeleteTag(DeleteTagRequest request) throws InvalidKeyException, IllegalArgumentException {
-        Optional<Tag> deletedTag = tagRepository.findById(String.valueOf(request.getId()));
-        if(deletedTag.isPresent() && request.getConfirmationName().equals(deletedTag.get().getName())){
-            tagRepository.deleteById(request.getId());
-        } else if (deletedTag.isEmpty()) {
-            throw new InvalidKeyException("Tag não encontrada!");
-        } else {
-            throw new IllegalArgumentException("Nome inválido!");
+    @Transactional
+    public void deleteTag(String id, DeleteTagRequest request) {
+
+        Tag tag = tagRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tag não encontrada."));
+
+        if (!request.getConfirmationName().equals(tag.getName())) {
+            throw new IllegalArgumentException("Confirmação inválida.");
         }
 
+        tagRepository.delete(tag);
+    }
+
+    public Tag patchTag(String id, PatchTagRequest request) {
+        Tag patchTag = tagRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Tag não encontrada."));
+
+        patchTag.setName(request.getName());
+
+        return tagRepository.save(patchTag);
     }
 }
