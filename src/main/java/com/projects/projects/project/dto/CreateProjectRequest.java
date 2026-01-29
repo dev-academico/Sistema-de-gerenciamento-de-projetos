@@ -13,5 +13,5 @@ import java.util.List;
 public class CreateProjectRequest {
     private String name;
     private String description;
-    private List<String> tagIds;
+    private List<Integer> tagIds;
 }
