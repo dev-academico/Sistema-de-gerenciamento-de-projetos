@@ -21,7 +21,6 @@ public class TagController {
 
     @PostMapping
     public ResponseEntity<@NonNull TagResponse> addTag(@Valid @RequestBody CreateTagRequest request){
-
         return new ResponseEntity<>(tagService.addTag(request), HttpStatus.CREATED);
     }
 
@@ -31,14 +30,13 @@ public class TagController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<@NonNull Void> deleteTag(@PathVariable Integer id, @RequestBody DeleteTagRequest request) {
+    public ResponseEntity<@NonNull Void> deleteTag(@PathVariable Integer id,@Valid @ModelAttribute DeleteTagRequest request) {
         tagService.deleteTag(id, request);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<@NonNull TagResponse> updateTag(@PathVariable Integer id, @RequestBody PatchTagRequest request) {
-
         return new ResponseEntity<>(tagService.patchTag(id, request), HttpStatus.CREATED);
     }
 }
