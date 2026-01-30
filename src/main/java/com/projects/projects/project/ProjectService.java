@@ -1,9 +1,16 @@
 package com.projects.projects.project;
 
+import com.projects.projects.exception.ResourceNotFoundException;
 import com.projects.projects.project.dto.CreateProjectRequest;
+import com.projects.projects.project.dto.ProjectResponse;
+import com.projects.projects.project.dto.QueryProjectRequest;
 import com.projects.projects.tag.Tag;
 import com.projects.projects.tag.TagRepository;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,11 +27,19 @@ public class ProjectService {
 
     }
 
-    public List<Project> ListProjects() {
-        return projectRepository.findAll();
+    public Page<@NonNull ProjectResponse> query(QueryProjectRequest request) {
+        PageRequest pageable = PageRequest.of(
+                request.getPage(),
+                request.getSize(),
+                Sort.by("name").ascending()
+        );
+
+        Page<@NonNull Project> projects = projectRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(request.getName(), request.getDescription(), pageable);
+
+        return projects.map(ProjectResponse::from);
     }
 
-    public Project AddProject(CreateProjectRequest request) {
+    public ProjectResponse create(CreateProjectRequest request) {
         Project newProject = new Project();
 
         newProject.setName(request.getName());
@@ -33,11 +48,11 @@ public class ProjectService {
         List<Tag> tags = tagRepository.findAllById(request.getTagIds());
 
         if (tags.size() != request.getTagIds().size()) {
-            throw new RuntimeException("One or more tag does not exist!");
+            throw new ResourceNotFoundException("One or more tag does not exist!");
         }
 
         newProject.getTags().addAll(tags);
 
-        return projectRepository.save(newProject);
+        return ProjectResponse.from(projectRepository.save(newProject));
     }
 }
