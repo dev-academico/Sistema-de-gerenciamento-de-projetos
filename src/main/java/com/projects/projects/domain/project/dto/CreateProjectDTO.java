@@ -1,4 +1,4 @@
-package com.projects.projects.project.dto;
+package com.projects.projects.domain.project.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateProjectRequest {
+public class CreateProjectDTO {
     @NotBlank(message = "Nome é obrigatório")
     private String name;
 

@@ -1,5 +1,6 @@
-package com.projects.projects.tag;
+package com.projects.projects.repositories;
 
+import com.projects.projects.domain.tag.Tag;
 import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

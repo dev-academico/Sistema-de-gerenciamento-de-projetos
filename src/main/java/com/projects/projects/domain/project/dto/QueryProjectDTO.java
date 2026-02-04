@@ -1,4 +1,4 @@
-package com.projects.projects.project.dto;
+package com.projects.projects.domain.project.dto;
 
 import jakarta.validation.constraints.Min;
 import lombok.Getter;
@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class QueryProjectRequest {
+public class QueryProjectDTO {
     private String name = "";
     private String description = "";
     @Min(value = 0, message = "Valor deve ser positivo.")

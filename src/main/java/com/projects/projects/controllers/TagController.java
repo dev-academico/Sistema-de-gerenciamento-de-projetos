@@ -1,5 +1,6 @@
-package com.projects.projects.tag;
+package com.projects.projects.controllers;
 
+import com.projects.projects.services.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -14,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.projects.projects.tag.dto.CreateTagRequest;
-import com.projects.projects.tag.dto.DeleteTagRequest;
-import com.projects.projects.tag.dto.PatchTagRequest;
-import com.projects.projects.tag.dto.QueryTagRequest;
-import com.projects.projects.tag.dto.TagResponse;
+import com.projects.projects.domain.tag.dto.CreateTagDTO;
+import com.projects.projects.domain.tag.dto.DeleteTagDTO;
+import com.projects.projects.domain.tag.dto.PatchTagDTO;
+import com.projects.projects.domain.tag.dto.QueryTagDTO;
+import com.projects.projects.domain.tag.dto.TagDTO;
 
 import jakarta.validation.Valid;
 import lombok.NonNull;
@@ -35,28 +36,28 @@ public class TagController {
     }
 
     @PostMapping
-    public ResponseEntity<@NonNull TagResponse> addTag(@Valid @RequestBody CreateTagRequest request) {
+    public ResponseEntity<@NonNull TagDTO> addTag(@Valid @RequestBody CreateTagDTO request) {
         return new ResponseEntity<>(tagService.addTag(request), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public Page<@NonNull TagResponse> queryTags(@Valid @ModelAttribute QueryTagRequest request) {
+    public Page<@NonNull TagDTO> queryTags(@Valid @ModelAttribute QueryTagDTO request) {
         return tagService.queryTags(request);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<@NonNull TagResponse> getTag(@PathVariable Integer id) {
+    public ResponseEntity<@NonNull TagDTO> getTag(@PathVariable Integer id) {
         return ResponseEntity.ok(tagService.getTag(id));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<@NonNull Void> deleteTag(@Valid @ModelAttribute DeleteTagRequest request, @PathVariable Integer id) {
+    public ResponseEntity<@NonNull Void> deleteTag(@Valid @ModelAttribute DeleteTagDTO request, @PathVariable Integer id) {
         tagService.deleteTag(id, request);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<@NonNull TagResponse> updateTag(@PathVariable Integer id, @RequestBody PatchTagRequest request) {
-        return new ResponseEntity<>(tagService.patchTag(id, request), HttpStatus.CREATED);
+    public ResponseEntity<@NonNull TagDTO> updateTag(@PathVariable Integer id, @RequestBody PatchTagDTO request) {
+        return new ResponseEntity<>(tagService.patchTag(id, request), HttpStatus.OK);
     }
 }

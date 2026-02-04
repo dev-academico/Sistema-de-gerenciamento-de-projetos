@@ -1,5 +1,7 @@
-package com.projects.projects.tag;
+package com.projects.projects.services;
 
+import com.projects.projects.domain.tag.Tag;
+import com.projects.projects.repositories.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,11 +10,11 @@ import org.springframework.stereotype.Service;
 
 import com.projects.projects.exception.BusinessException;
 import com.projects.projects.exception.ResourceNotFoundException;
-import com.projects.projects.tag.dto.CreateTagRequest;
-import com.projects.projects.tag.dto.DeleteTagRequest;
-import com.projects.projects.tag.dto.PatchTagRequest;
-import com.projects.projects.tag.dto.QueryTagRequest;
-import com.projects.projects.tag.dto.TagResponse;
+import com.projects.projects.domain.tag.dto.CreateTagDTO;
+import com.projects.projects.domain.tag.dto.DeleteTagDTO;
+import com.projects.projects.domain.tag.dto.PatchTagDTO;
+import com.projects.projects.domain.tag.dto.QueryTagDTO;
+import com.projects.projects.domain.tag.dto.TagDTO;
 
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
@@ -27,11 +29,11 @@ public class TagService {
         this.tagRepository = tagRepository;
     }
 
-    public TagResponse addTag(CreateTagRequest request) {
-        return TagResponse.from(tagRepository.save(new Tag(request.getName())));
+    public TagDTO addTag(CreateTagDTO request) {
+        return TagDTO.from(tagRepository.save(new Tag(request.getName())));
     }
 
-    public Page<@NonNull TagResponse> queryTags(QueryTagRequest request) {
+    public Page<@NonNull TagDTO> queryTags(QueryTagDTO request) {
         PageRequest pageable = PageRequest.of(
                 request.getPage(),
                 request.getSize(),
@@ -40,18 +42,18 @@ public class TagService {
 
         Page<@NonNull Tag> queryTags = tagRepository.findByNameContainingIgnoreCase(request.getSearch(), pageable);
 
-        return queryTags.map(TagResponse::from);
+        return queryTags.map(TagDTO::from);
     }
 
-    public TagResponse getTag(Integer id) {
+    public TagDTO getTag(Integer id) {
         Tag tag = tagRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tag não encontrada."));
 
-        return TagResponse.from(tag);
+        return TagDTO.from(tag);
     }
 
     @Transactional
-    public void deleteTag(Integer id, DeleteTagRequest request) {
+    public void deleteTag(Integer id, DeleteTagDTO request) {
 
         Tag deleteTag = tagRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tag não encontrada."));
@@ -63,12 +65,12 @@ public class TagService {
         tagRepository.delete(deleteTag);
     }
 
-    public TagResponse patchTag(Integer id, PatchTagRequest request) {
+    public TagDTO patchTag(Integer id, PatchTagDTO request) {
         Tag patchTag = tagRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Tag não encontrada."));
 
         patchTag.setName(request.getName());
 
-        return TagResponse.from(tagRepository.save(patchTag));
+        return TagDTO.from(tagRepository.save(patchTag));
     }
 }

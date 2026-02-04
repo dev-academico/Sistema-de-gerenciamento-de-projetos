@@ -1,7 +1,7 @@
-package com.projects.projects.project;
+package com.projects.projects.domain.project;
 
 
-import com.projects.projects.tag.Tag;
+import com.projects.projects.domain.tag.Tag;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,6 +33,7 @@ public class Project {
     private Instant createdAt;
 
     @ManyToMany
+    @OrderBy("name ASC")
     @JoinTable(name = "project_tag", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();
 }

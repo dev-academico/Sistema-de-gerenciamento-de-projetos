@@ -1,7 +1,7 @@
-package com.projects.projects.project.dto;
+package com.projects.projects.domain.project.dto;
 
-import com.projects.projects.project.Project;
-import com.projects.projects.tag.Tag;
+import com.projects.projects.domain.project.Project;
+import com.projects.projects.domain.tag.Tag;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,14 +14,14 @@ import java.util.Set;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ProjectResponse {
+public class ProjectDTO {
     private Integer id;
     private String name;
     private String description;
     private Set<Tag> tags = new HashSet<>();
 
-    public static ProjectResponse from(Project project) {
-        ProjectResponse projectResponse = new ProjectResponse(project.getId(), project.getName(), project.getDescription(),  project.getTags());
+    public static ProjectDTO from(Project project) {
+        ProjectDTO projectResponse = new ProjectDTO(project.getId(), project.getName(), project.getDescription(),  project.getTags());
         return projectResponse;
     }
 }
