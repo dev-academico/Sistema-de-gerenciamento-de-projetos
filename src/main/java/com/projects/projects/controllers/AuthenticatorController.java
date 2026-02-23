@@ -1,7 +1,6 @@
 package com.projects.projects.controllers;
 
 import com.projects.projects.domain.user.User;
-import com.projects.projects.domain.user.UserRole;
 import com.projects.projects.domain.user.dto.AuthenticationDTO;
 import com.projects.projects.domain.user.dto.LoginResponseDTO;
 import com.projects.projects.domain.user.dto.RegisterDTO;
@@ -50,7 +49,7 @@ public class AuthenticatorController {
         };
 
         String encodedPassword = new BCryptPasswordEncoder().encode(request.getPassword());
-        User user = new User(request.getLogin(), encodedPassword, request.getRole());
+        User user = new User(request.getLogin(), encodedPassword, request.getRole(), request.getName());
         userRepository.save(user);
 
         return ResponseEntity.ok().build();

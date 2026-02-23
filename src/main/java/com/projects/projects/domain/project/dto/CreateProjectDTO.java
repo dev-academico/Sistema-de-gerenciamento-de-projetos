@@ -19,4 +19,7 @@ public class CreateProjectDTO {
 
     @Size(max = 5, message = "O número máximo de tags é 5")
     private List<Integer> tagIds;
+
+    @Size(max = 20, message = "O número máximo de membros é 20")
+    private List<ProjectMemberCreateDTO> members;
 }

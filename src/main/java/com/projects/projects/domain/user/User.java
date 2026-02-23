@@ -25,15 +25,19 @@ public class User implements UserDetails {
     @Column(name = "id")
     private Integer id;
 
+    @Column(name = "name")
+    private String name;
+
     private String login;
     private String password;
 
     private UserRole role;
 
-    public User(@Email @NotBlank String login, String encodedPassword, UserRole userRole) {
+    public User(@Email @NotBlank String login, String encodedPassword, UserRole userRole, String name) {
         this.login = login;
         this.password = encodedPassword;
         this.role = userRole;
+        this.name = name;
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.projects.projects.domain.project;
 
 
 import com.projects.projects.domain.tag.Tag;
+import com.projects.projects.domain.user.User;
+import com.projects.projects.domain.userproject.UserProject;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,4 +38,7 @@ public class Project {
     @OrderBy("name ASC")
     @JoinTable(name = "project_tag", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();
+
+    @OneToMany(mappedBy = "project")
+    private Set<UserProject> members;
 }
