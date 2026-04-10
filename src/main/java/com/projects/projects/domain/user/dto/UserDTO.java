@@ -9,10 +9,11 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 public class UserDTO {
+    private Integer id;
     private String name;
     private String login;
 
     static public UserDTO from (User user){
-        return new UserDTO(user.getName(), user.getLogin());
+        return new UserDTO(user.getId(), user.getName(), user.getLogin());
     }
 }

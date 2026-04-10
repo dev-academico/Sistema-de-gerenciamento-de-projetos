@@ -1,4 +1,4 @@
-package com.projects.projects.domain.userproject;
+package com.projects.projects.domain.memberProject;
 
 import com.projects.projects.domain.project.Project;
 import com.projects.projects.domain.user.User;
@@ -12,10 +12,10 @@ import java.time.Instant;
 @Entity
 @Getter
 @Setter
-public class UserProject {
+public class MemberProject {
 
     @EmbeddedId
-    private ProjectUserId id = new ProjectUserId();
+    private MemberProjectId id = new MemberProjectId();
 
     @ManyToOne
     @MapsId("projectId")
@@ -27,7 +27,7 @@ public class UserProject {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role_in_project")
-    private ProjectUserRole role;
+    private MemberRole role;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "joined_at")

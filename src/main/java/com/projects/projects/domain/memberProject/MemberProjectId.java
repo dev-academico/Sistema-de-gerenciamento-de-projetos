@@ -1,4 +1,4 @@
-package com.projects.projects.domain.userproject;
+package com.projects.projects.domain.memberProject;
 
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Embeddable
 @Getter
 @Setter
-public class ProjectUserId implements Serializable {
+public class MemberProjectId implements Serializable {
     private Integer projectId;
     private Integer userId;
 }

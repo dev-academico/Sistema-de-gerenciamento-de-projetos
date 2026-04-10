@@ -1,10 +1,12 @@
 package com.projects.projects.domain.project.dto;
 
+import com.projects.projects.domain.memberProject.MemberRole;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -22,4 +24,11 @@ public class CreateProjectDTO {
 
     @Size(max = 20, message = "O número máximo de membros é 20")
     private List<ProjectMemberCreateDTO> members;
+
+    @Getter
+    @Setter
+    public static class ProjectMemberCreateDTO {
+        private Integer userId;
+        private MemberRole role;
+    }
 }

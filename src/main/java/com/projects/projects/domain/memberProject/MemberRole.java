@@ -1,13 +1,13 @@
-package com.projects.projects.domain.userproject;
+package com.projects.projects.domain.memberProject;
 
-public enum ProjectUserRole {
+public enum MemberRole {
     OWNER("owner"),
     MANAGER("manager"),
     OPERATOR("operator");
 
     private String role;
 
-    ProjectUserRole(String role) {
+    MemberRole(String role) {
         this.role = role;
     }
 

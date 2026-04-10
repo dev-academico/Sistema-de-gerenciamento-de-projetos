@@ -1,15 +1,19 @@
 package com.projects.projects.services;
 
+import com.projects.projects.domain.memberProject.dto.MembersDTO;
+import com.projects.projects.domain.memberProject.dto.PatchMembersDTO;
+import com.projects.projects.domain.memberProject.dto.RemoveMembersDTO;
 import com.projects.projects.domain.project.Project;
 import com.projects.projects.domain.project.dto.*;
 import com.projects.projects.domain.user.User;
-import com.projects.projects.domain.userproject.ProjectUserRole;
-import com.projects.projects.domain.userproject.UserProject;
+import com.projects.projects.domain.memberProject.MemberRole;
+import com.projects.projects.domain.memberProject.MemberProject;
+import com.projects.projects.exception.BusinessException;
 import com.projects.projects.exception.ResourceNotFoundException;
 import com.projects.projects.domain.tag.Tag;
 import com.projects.projects.repositories.ProjectRepository;
 import com.projects.projects.repositories.TagRepository;
-import com.projects.projects.repositories.UserProjectRepository;
+import com.projects.projects.repositories.MemberProjectRepository;
 import com.projects.projects.repositories.UserRepository;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,35 +23,38 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
-    private final UserProjectRepository userProjectRepository;
+    private final MemberProjectRepository memberProjectRepository;
 
     @Autowired
-    private ProjectService(ProjectRepository projectRepository, TagRepository tagRepository, UserRepository userRepository,  UserProjectRepository userProjectRepository) {
+    private ProjectService(ProjectRepository projectRepository, TagRepository tagRepository, UserRepository userRepository,  MemberProjectRepository memberProjectRepository) {
         this.projectRepository = projectRepository;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
-        this.userProjectRepository = userProjectRepository;
+        this.memberProjectRepository = memberProjectRepository;
     }
 
-    public Page<@NonNull ProjectWithoutMembersDTO> query(QueryProjectDTO request) {
+    public Page<@NonNull ProjectWithoutMembersDTO> query(@NonNull QueryProjectDTO request, User user) {
         PageRequest pageable = PageRequest.of(
                 request.getPage(),
                 request.getSize(),
                 Sort.by("name").ascending()
         );
 
-        Page<@NonNull Project> projects = projectRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(request.getName(), request.getDescription(), pageable);
-
-        return projects.map(ProjectWithoutMembersDTO::from);
+        return projectRepository.findByUserMembershipAndSearch(
+                user.getId(),
+                request.getName(),
+                request.getDescription(),
+                pageable).map(ProjectWithoutMembersDTO::from);
     }
 
-    public ProjectDTO create(CreateProjectDTO request, User owner) {
+    public ProjectDTO create(@NonNull CreateProjectDTO request, User owner) {
         Project newProject = new Project();
 
         newProject.setName(request.getName());
@@ -63,32 +70,54 @@ public class ProjectService {
 
         newProject.getTags().addAll(tags);
 
-        AddMembers(newProject, request.getMembers(), owner);
+        initializeMembers(newProject, request.getMembers(), owner);
 
-        List<UserProject> members = userProjectRepository.findAllByProject_Id(newProject.getId());
+        List<MemberProject> members = memberProjectRepository.findAllByProject_Id(newProject.getId());
 
         return ProjectDTO.from(projectRepository.save(newProject), MembersDTO.fromList(members));
     }
 
-    public void delete(Integer id) {
-        if (!projectRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Projeto não foi encontrado!");
-        }
-        projectRepository.deleteById(id);
+
+    public ProjectDTO get(Integer projectId, User user){
+        memberProjectRepository
+                .findByProject_IdAndUser_id(projectId, user.getId()).orElseThrow(() -> new BusinessException("Usuário não é membro deste projeto!"));
+
+        List<MemberProject> members = memberProjectRepository.findAllByProject_Id(projectId);
+        return ProjectDTO
+                .from(projectRepository
+                        .findById(projectId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado")), MembersDTO.fromList(members));
     }
 
-    public ProjectWithoutMembersDTO patch(Integer id, PatchProjectDTO request) {
-        if(!projectRepository.existsById(id)) {
+    public void delete(Integer projectId, User user) {
+        MemberProject member = memberProjectRepository
+                .findByProject_IdAndUser_id(projectId, user.getId()).orElseThrow(() -> new BusinessException("Usuário não é membro deste projeto!"));
+
+        if(member.getRole() != MemberRole.OWNER) {
+            throw new BusinessException("Apenas o dono pode excluir o projeto!");
+        }
+
+        if (!projectRepository.existsById(projectId)) {
             throw new ResourceNotFoundException("Projeto não foi encontrado!");
         }
-        Project project = projectRepository.findById(id).get();
 
-        if (request.getName() != null) {
-            project.setName(request.getName());
+        projectRepository.deleteById(projectId);
+    }
+
+    public ProjectWithoutMembersDTO patch(Integer projectId, PatchProjectDTO request, User user) {
+        verifyOwnerOrManager(projectId, user);
+
+        if(!projectRepository.existsById(projectId)) {
+            throw new ResourceNotFoundException("Projeto não foi encontrado!");
+        }
+        Project project = projectRepository.findById(projectId).get();
+
+        if (request.getName().trim() != null && request.getName().trim().length() > 3) {
+            project.setName(request.getName().trim());
         }
 
         if (request.getDescription() != null) {
-            project.setDescription(request.getDescription());
+            project.setDescription(request.getDescription().trim());
         }
 
         if (request.getTagIds() != null) {
@@ -98,38 +127,106 @@ public class ProjectService {
                 throw new ResourceNotFoundException("Uma ou mais tags não existem!");
             }
 
-            project.getTags().clear();      // remove as antigas
-            project.getTags().addAll(tags); // adiciona as novas
+            project.getTags().clear();
+            project.getTags().addAll(tags);
         }
 
         return ProjectWithoutMembersDTO.from(projectRepository.save(project));
     }
 
-    public void AddMembers(Project project, List<ProjectMemberCreateDTO> projectMembersDTO, User owner) {
+    public MemberProject verifyOwnerOrManager(Integer projectId, User user) {
+        MemberProject memberProject = memberProjectRepository
+                .findByProject_IdAndUser_id(projectId, user.getId()).orElseThrow(() -> new BusinessException("Usuário não é membro deste projeto!"));
 
-        UserProject userProject = new UserProject();
-        userProject.setProject(project);
-        userProject.setUser(owner);
-        userProject.setRole(ProjectUserRole.OWNER);
-        userProjectRepository.save(userProject);
+        if (memberProject.getRole() != MemberRole.OWNER &&  memberProject.getRole() != MemberRole.MANAGER) {
+            throw new BusinessException("Apenas donos e gerentes podem realizar essa ação!");
+        }
 
-        for (ProjectMemberCreateDTO projectMemberDTO : projectMembersDTO) {
-            UserProject memberUserProject = new UserProject();
-            User member = userRepository.findById(projectMemberDTO.getUserId()).orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+        return memberProject;
+    }
 
-            memberUserProject.setProject(project);
-            memberUserProject.setUser(member);
-            memberUserProject.setRole(projectMemberDTO.getRole());
+    public void patchMembers(Integer projectId, PatchMembersDTO request, User user) {
+        MemberProject validatedUser = verifyOwnerOrManager(projectId, user);
 
-            userProjectRepository.save(memberUserProject);
+        for (PatchMembersDTO.PatchMemberDTO member :  request.getMembers()) {
+            Optional<MemberProject> dataMember = memberProjectRepository.findByProject_IdAndUser_id(projectId, member.getUserId());
+            if (dataMember.isPresent()) {
+                MemberProject memberProject = dataMember.get();
+
+                // A manager can not change others managers or owners
+                if (validatedUser.getRole() == MemberRole.MANAGER
+                        && (memberProject.getRole() == MemberRole.OWNER || memberProject.getRole() == MemberRole.MANAGER)) {
+                    throw new BusinessException("Gerentes não podem modificar outros gerentes ou o dono.");
+                }
+
+                // Should exist one or more owners
+                if(memberProjectRepository.countByRole(MemberRole.OWNER) == 1
+                        && (validatedUser.getRole() == MemberRole.OWNER
+                        && (memberProject.getRole() == MemberRole.OWNER))) {
+                    throw new BusinessException("Deve existir pelo menos 1 dono!");
+                }
+
+                memberProject.setRole(member.getRole());
+                memberProjectRepository.save(memberProject);
+            } else {
+                Project project = projectRepository.findById(projectId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado!"));
+                User newMember = userRepository.findById(member.getUserId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado!"));;
+
+                createMember(project, newMember, member.getRole());
+            }
         }
     }
 
-    public ProjectDTO get(Integer id){
-        List<UserProject> members = userProjectRepository.findAllByProject_Id(id);
-        return ProjectDTO
-                .from(projectRepository
-                        .findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("Projeto não encontrado")), MembersDTO.fromList(members));
+    public void removeMembers(Integer projectId, RemoveMembersDTO request, User user) {
+        MemberProject validatedUser = verifyOwnerOrManager(projectId, user);
+
+        for(Integer userId : request.getUserIds()) {
+            MemberProject member = memberProjectRepository.findByProject_IdAndUser_id(projectId, userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Membro não encontrado!"));
+
+            // A manager can not delete another manager
+            if(validatedUser.getRole() == MemberRole.MANAGER
+                    && (member.getRole() == MemberRole.MANAGER)) {
+                throw new BusinessException("Um gerente não pode excluir outro gerente!");
+            }
+
+            // Owners can not be deleted
+            if(member.getRole() == MemberRole.OWNER) {
+                throw new BusinessException("Donos não podem ser removidos!");
+            }
+
+            memberProjectRepository.delete(member);
+        }
     }
+
+    // utils
+
+    public void createMember(Project project, User user, MemberRole role) {
+        MemberProject newMember = new MemberProject();
+        newMember.setProject(project);
+        newMember.setUser(user);
+        newMember.setRole(role);
+
+        memberProjectRepository.save(newMember);
+    }
+
+    public void initializeMembers(Project project, List<CreateProjectDTO.ProjectMemberCreateDTO> projectMembersDTO, User owner) {
+
+        MemberProject memberProject = new MemberProject();
+        memberProject.setProject(project);
+        memberProject.setUser(owner);
+        memberProject.setRole(MemberRole.OWNER);
+
+        memberProjectRepository.save(memberProject);
+
+        for (CreateProjectDTO.ProjectMemberCreateDTO projectMemberDTO : projectMembersDTO) {
+            User member = userRepository.findById(projectMemberDTO.getUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+            createMember(project, member, projectMemberDTO.getRole());
+        }
+    }
+
+
 }

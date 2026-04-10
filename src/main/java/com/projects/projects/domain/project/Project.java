@@ -2,8 +2,7 @@ package com.projects.projects.domain.project;
 
 
 import com.projects.projects.domain.tag.Tag;
-import com.projects.projects.domain.user.User;
-import com.projects.projects.domain.userproject.UserProject;
+import com.projects.projects.domain.memberProject.MemberProject;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +17,7 @@ import java.util.Set;
 @Setter
 @Getter
 @NoArgsConstructor
+@Table(name = "project")
 public class Project {
     @Id
     @GeneratedValue
@@ -40,5 +40,5 @@ public class Project {
     private Set<Tag> tags = new HashSet<>();
 
     @OneToMany(mappedBy = "project")
-    private Set<UserProject> members;
+    private Set<MemberProject> members;
 }

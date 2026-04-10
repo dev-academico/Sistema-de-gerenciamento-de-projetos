@@ -1,15 +1,14 @@
 package com.projects.projects.domain.project.dto;
 
+import com.projects.projects.domain.memberProject.dto.MembersDTO;
 import com.projects.projects.domain.project.Project;
 import com.projects.projects.domain.tag.Tag;
-import com.projects.projects.domain.userproject.UserProject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @NoArgsConstructor

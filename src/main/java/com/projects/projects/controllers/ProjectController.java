@@ -1,5 +1,7 @@
 package com.projects.projects.controllers;
 
+import com.projects.projects.domain.memberProject.dto.PatchMembersDTO;
+import com.projects.projects.domain.memberProject.dto.RemoveMembersDTO;
 import com.projects.projects.domain.project.dto.*;
 import com.projects.projects.domain.user.User;
 import com.projects.projects.services.ProjectService;
@@ -22,28 +24,40 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<@NonNull ProjectDTO> save(@Valid @RequestBody CreateProjectDTO request, @AuthenticationPrincipal User owner) {
+    public ResponseEntity<@NonNull ProjectDTO> create(@Valid @RequestBody CreateProjectDTO request, @AuthenticationPrincipal User owner) {
         return  new ResponseEntity<>(projectService.create(request, owner), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public Page<@NonNull ProjectWithoutMembersDTO> query(@Valid @ModelAttribute QueryProjectDTO request) {
-        return projectService.query(request);
+    public Page<@NonNull ProjectWithoutMembersDTO> query(@Valid @ModelAttribute QueryProjectDTO request, @AuthenticationPrincipal User user) {
+        return projectService.query(request, user);
     }
 
     @GetMapping("/{id}")
-    public ProjectDTO getProject(@PathVariable Integer id) {
-        return projectService.get(id);
+    public ProjectDTO getProject(@PathVariable Integer id, @AuthenticationPrincipal User user) {
+        return projectService.get(id, user);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<@NonNull Void> delete(@PathVariable Integer id) {
-        projectService.delete(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<@NonNull Void> delete(@PathVariable Integer id, @AuthenticationPrincipal User user) {
+        projectService.delete(id, user);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<@NonNull ProjectWithoutMembersDTO> patch(@Valid @RequestBody PatchProjectDTO request, @PathVariable Integer id) {
-        return new ResponseEntity<>(projectService.patch(id, request), HttpStatus.OK);
+    public ResponseEntity<@NonNull ProjectWithoutMembersDTO> patch(@RequestBody PatchProjectDTO request, @PathVariable Integer id,  @AuthenticationPrincipal User user) {
+        return new ResponseEntity<>(projectService.patch(id, request, user), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}/members")
+    public ResponseEntity<Void> patchMembers(@Valid @RequestBody PatchMembersDTO request, @PathVariable Integer id,  @AuthenticationPrincipal User user) {
+        projectService.patchMembers(id, request, user);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}/members")
+    public ResponseEntity<@NonNull Void> deleteMembers(@Valid @RequestBody RemoveMembersDTO request, @PathVariable Integer id, @AuthenticationPrincipal User user) {
+        projectService.removeMembers(id, request, user);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
