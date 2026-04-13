@@ -50,9 +50,9 @@ public class ProjectController {
     }
 
     @PatchMapping("/{id}/members")
-    public ResponseEntity<Void> patchMembers(@Valid @RequestBody PatchMembersDTO request, @PathVariable Integer id,  @AuthenticationPrincipal User user) {
+    public ResponseEntity<@NonNull Void> patchMembers(@Valid @RequestBody PatchMembersDTO request, @PathVariable Integer id,  @AuthenticationPrincipal User user) {
         projectService.patchMembers(id, request, user);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}/members")

@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/v1/auth")
 public class AuthenticatorController {
 
-    private AuthenticationManager authenticationManager;
-    private UserRepository userRepository;
-    private TokenService tokenService;
+    private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
+    private final TokenService tokenService;
     @Autowired
     public AuthenticatorController(AuthenticationManager authenticationManager,  UserRepository userRepository,  TokenService tokenService) {
         this.authenticationManager = authenticationManager;
