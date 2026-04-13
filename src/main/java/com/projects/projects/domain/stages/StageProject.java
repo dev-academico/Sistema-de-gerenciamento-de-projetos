@@ -4,7 +4,6 @@ package com.projects.projects.domain.stages;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.antlr.v4.runtime.misc.Interval;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -15,7 +14,7 @@ import java.util.Date;
 @Setter
 @Getter
 @Table(name = "stage_templates")
-public class StageTemplate {
+public class StageProject {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

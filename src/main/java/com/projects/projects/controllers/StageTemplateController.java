@@ -1,8 +1,6 @@
 package com.projects.projects.controllers;
 
-import com.projects.projects.domain.stages.dto.CreateStageTemplate;
-import com.projects.projects.domain.stages.dto.QueryStagesTemplatesDTO;
-import com.projects.projects.domain.stages.dto.StageDTO;
+import com.projects.projects.domain.stages.dto.*;
 import com.projects.projects.domain.user.User;
 import com.projects.projects.services.StageTemplateService;
 import jakarta.validation.Valid;
@@ -10,8 +8,9 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/stages")
@@ -37,6 +36,19 @@ public class StageTemplateController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        return stageTemplateService.delete(id);
+        stageTemplateService.delete(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<StageDTO> update(@PathVariable Integer id, @Valid @RequestBody PatchStageTemplate request) {
+        return ResponseEntity.ok().body(stageTemplateService.patch(id, request));
+    }
+
+    @PatchMapping("/reorder")
+    public ResponseEntity<Void> update(@Valid @RequestBody List<Integer> request) {
+        stageTemplateService.updateOrder(request);
+        return ResponseEntity.ok().build();
     }
 }

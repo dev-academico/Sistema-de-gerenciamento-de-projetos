@@ -1,7 +1,5 @@
 package com.projects.projects.domain.stages.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,8 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-public class CreateStageTemplate {
-    @NotBlank(message = "Nome é obrigatório")
+public class PatchStageTemplate {
     @Size(max = 100)
     private String name;
 
@@ -21,6 +18,5 @@ public class CreateStageTemplate {
 
     private String timeToFinish;
 
-    @NotNull(message = "Ativo/Desativado é obrigatório")
     private Boolean isDefault;
 }
