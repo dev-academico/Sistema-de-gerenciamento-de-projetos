@@ -1,27 +1,34 @@
 package com.projects.projects.domain.stages.dto;
 
-import com.projects.projects.domain.stages.StageTemplate;
-import lombok.AllArgsConstructor;
+import com.projects.projects.domain.stages.Stage;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
 
-@Setter
 @Getter
-@AllArgsConstructor
-@NoArgsConstructor
+@Setter
 public class StageDTO {
     private Integer id;
     private String name;
     private String description;
-    private Boolean isDefault;
-    private String timeToFinish;
-    private Date createAt;
+    private Date dueDate;
+    private Integer defaultOrder;
+    private Date createdAt;
+    private Date updatedAt;
+    private Date startDate;
+    private Date completedAt;
 
-    static public StageDTO from(StageTemplate stage) {
-        StageDTO stageDTO = new StageDTO(stage.getId(), stage.getName(), stage.getDescription(), stage.getIsDefault(), stage.getTimeToFinish().toString(), stage.getCreatedAt());
+    public static StageDTO from(Stage stage){
+        StageDTO stageDTO = new StageDTO();
+        stageDTO.setId(stage.getId());
+        stageDTO.setName(stage.getName());
+        stageDTO.setDescription(stage.getDescription());
+        stageDTO.setDueDate(stage.getDueDate());
+        stageDTO.setDefaultOrder(stage.getDefaultOrder());
+        stageDTO.setCreatedAt(stage.getCreatedAt());
+        stageDTO.setUpdatedAt(stage.getUpdatedAt());
+        stageDTO.setCompletedAt(stage.getCompletedAt());
 
         return stageDTO;
     }

@@ -1,7 +1,6 @@
 package com.projects.projects.controllers;
 
 import com.projects.projects.domain.stages.dto.*;
-import com.projects.projects.domain.user.User;
 import com.projects.projects.services.StageTemplateService;
 import jakarta.validation.Valid;
 import lombok.NonNull;
@@ -23,14 +22,14 @@ public class StageTemplateController {
     }
 
     @PostMapping
-    public ResponseEntity<StageDTO> create(@Valid @RequestBody CreateStageTemplate request) {
-        StageDTO stage = stageTemplateService.create(request);
+    public ResponseEntity<StageTemplateDTO> create(@Valid @RequestBody CreateStageTemplate request) {
+        StageTemplateDTO stage = stageTemplateService.create(request);
 
         return ResponseEntity.ok().body(stage);
     }
 
     @GetMapping
-    public Page<@NonNull StageDTO> query(@Valid @ModelAttribute QueryStagesTemplatesDTO request) {
+    public Page<@NonNull StageTemplateDTO> query(@Valid @ModelAttribute QueryStagesTemplatesDTO request) {
         return stageTemplateService.query(request);
     }
 
@@ -42,7 +41,7 @@ public class StageTemplateController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<StageDTO> update(@PathVariable Integer id, @Valid @RequestBody PatchStageTemplate request) {
+    public ResponseEntity<StageTemplateDTO> update(@PathVariable Integer id, @Valid @RequestBody PatchStageTemplate request) {
         return ResponseEntity.ok().body(stageTemplateService.patch(id, request));
     }
 

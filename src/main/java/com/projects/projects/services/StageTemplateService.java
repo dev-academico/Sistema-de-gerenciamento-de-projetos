@@ -24,7 +24,7 @@ public class StageTemplateService {
         this.stageTemplateRepository = stageTemplateRepository;
     }
 
-    public StageDTO create(@NonNull CreateStageTemplate request) {
+    public StageTemplateDTO create(@NonNull CreateStageTemplate request) {
         StageTemplate stageTemplate = new StageTemplate();
         stageTemplate.setName(request.getName());
         stageTemplate.setDescription(request.getDescription());
@@ -37,22 +37,22 @@ public class StageTemplateService {
 
         StageTemplate stageTemplateCreated = stageTemplateRepository.save(stageTemplate);
 
-        return StageDTO.from(stageTemplateCreated);
+        return StageTemplateDTO.from(stageTemplateCreated);
     }
 
-    public Page<@NonNull StageDTO> query(QueryStagesTemplatesDTO request) {
+    public Page<@NonNull StageTemplateDTO> query(QueryStagesTemplatesDTO request) {
         PageRequest pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.by("default_order").ascending());
 
         return stageTemplateRepository.findAllByNameContainingIgnoreCase(
                 request.getName(),
-                pageable).map(StageDTO::from);
+                pageable).map(StageTemplateDTO::from);
     }
 
     public void delete(@NonNull Integer id) {
         stageTemplateRepository.deleteById(id);
     }
 
-    public StageDTO patch(Integer id, PatchStageTemplate request) {
+    public StageTemplateDTO patch(Integer id, PatchStageTemplate request) {
         Optional<StageTemplate> stage = stageTemplateRepository.findById(id);
 
         if(stage.isEmpty()) {
@@ -72,7 +72,7 @@ public class StageTemplateService {
             stage.get().setTimeToFinish(Duration.parse(request.getTimeToFinish()));
         }
 
-        return StageDTO.from(stageTemplateRepository.save(stage.get()));
+        return StageTemplateDTO.from(stageTemplateRepository.save(stage.get()));
     }
 
     @Transactional
